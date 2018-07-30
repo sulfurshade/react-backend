@@ -11,7 +11,12 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var doctorsRouter = require('./routes/doctors-router');
+var patientsRouter = require('./routes/patients-router');
+var conditionsRouter = require('./routes/conditions-router');
+var appointmentsRouter = require('./routes/appointments-router');
+var adminsRouter = require('./routes/admin-router');
+
 var Doctor = require('./models/doctor');
 var Admin = require('./models/admin');
 var Patient = require('./models/patient');
@@ -34,11 +39,17 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/doctors', doctorsRouter);
+app.use('/patients', patientsRouter);
+app.use('/conditions', conditionsRouter);
+app.use('/appointments', appointmentsRouter);
+app.use('/admins', adminsRouter);
 
 passport.use(new JsonStrategy(
   function(username, password, done) {
-    console.log('console log');
+    console.log('console log', username);
+    Doctor.create({name: 'dr app js', number: '1231231234', practice: 'doctor', username: 'appjsdoctor', password: 'appjsdoctor', email: 'appjs@gmail.com'});
+    console.log('after doctor create');
     Doctor.findOne({ username: username }, function(err, user) {
       console.log('doctor find one');
       if (err) {
@@ -69,6 +80,7 @@ passport.use(new JsonStrategy(
         return done(null, user);
       }
     });
+    console.log("can we see this");
     return done(null, false, {message: 'Could not find user with that email'})
   }
 ));

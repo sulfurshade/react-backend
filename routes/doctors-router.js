@@ -21,7 +21,10 @@ router.post('/', (req, res) => {
     .create({
       name: req.body.name,
       number: req.body.number,
-      practice: req.body.practice
+      practice: req.body.practice,
+      username: req.body.username,
+      email: req.body.email,
+      password: req.body.password
     })
     .then(doctor => res.status(201).json(doctor.apiRepr()))
     .catch(err => {
@@ -54,7 +57,7 @@ router.delete('/:id', (req, res) => {
     });
 });
 
-router.put('/:id', passport.authenticate('local'), (req, res) => {
+router.put('/:id', (req, res) => {
   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     res.status(400).json({
       error: 'Request path id and request body id values must match'
@@ -75,4 +78,4 @@ router.put('/:id', passport.authenticate('local'), (req, res) => {
     .catch(err => res.status(500).json({message: 'Something went wrong'}));
 });
 
-module.exports = {doctorsRouter:router};
+module.exports = router;

@@ -76,4 +76,4 @@ router.put('/:id', (req, res) => {
     .catch(err => res.status(500).json({message: 'Something went wrong'}));
 });
 
-module.exports = {appointmentsRouter:router};
+module.exports = router;

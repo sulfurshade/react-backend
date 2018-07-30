@@ -20,6 +20,6 @@ schema.methods.apiRepr = function () {
   return repr;
 }
 
-const Doctor = mongoose.model('Doctor', schema);
+const Doctor = mongoose.model('Doctor', schema, 'Doctor');
 
 module.exports = Doctor;

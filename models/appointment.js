@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const DoctorSchema = require('mongoose').model('doctor').schema;
-const PatientSchema = require('mongoose').model('patient').schema;
+const DoctorSchema = require('mongoose').model('Doctor').schema;
+const PatientSchema = require('mongoose').model('Patient').schema;
 
 const schema = mongoose.Schema({
   date: { type: Date, required: true },
