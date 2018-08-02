@@ -1,10 +1,49 @@
-var express = require('express');
+const express = require('express');
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { Patient } = require('../models/patient');
+const { check, validationResult } = require('express-validator/check');
+const { matchedData, sanitize } = require('express-validator/filter');
+const passport = require('passport');
+const JsonStrategy = require('passport-json').Strategy;
 
-const Patient = require('../models/patient');
-var router = express.Router();
-
+const router = express.Router();
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
+
+passport.use(
+  new JsonStrategy(
+    { usernameField: "email", passReqToCallback: true },
+    function(req, email, password, done) {
+      Patient.findOne({ email }, function(err, user) {
+        if (err) {
+          return done(err);
+        }
+        if (!user) {
+          return done(null, false, {
+            message: "Incorrect username or password."
+          });
+        }
+        if (!user.validPassword(password)) {
+          return done(null, false, {
+            message: "Incorrect username or password."
+          });
+        }
+        return done(null, user);
+      });
+    }
+  )
+);
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);;
+})
+
+passport.deserializeUser(function(id, done) {
+  Patient.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
 
 router.get('/', (req, res) => {
   Patient
