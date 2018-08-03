@@ -88,10 +88,10 @@ passport.use(new JsonStrategy(
   }
 ));
 
-app.post('/login', function(req, res, next) {
-  passport.authenticate('json', { failureFlash: "this is a string" }, function(err, user) {
-    console.log("post login");
-  });
+app.post('/login', passport.authenticate('json', { failureFlash: "this is a string" }), function(req, res) {
+    console.log("post login", req.user);
+    res.setHeader("Content-Type", "application/json");
+    res.send(JSON.stringify(req.user));
 });
 
 // catch 404 and forward to error handler
