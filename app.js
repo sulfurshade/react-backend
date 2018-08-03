@@ -37,6 +37,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(passport.initialize());
 
 app.use('/', indexRouter);
 app.use('/doctors', doctorsRouter);
@@ -48,46 +49,50 @@ app.use('/admins', adminsRouter);
 passport.use(new JsonStrategy(
   function(username, password, done) {
     console.log('console log', username);
-    Doctor.create({name: 'dr app js', number: '1231231234', practice: 'doctor', username: 'appjsdoctor', password: 'appjsdoctor', email: 'appjs@gmail.com'});
+    // Doctor.create({name: 'dr app js', number: '1231231234', practice: 'doctor', username: 'appjsdoctor', password: 'appjsdoctor', email: 'appjs@gmail.com'});
     console.log('after doctor create');
-    Doctor.findOne({ username: username }, function(err, user) {
+    Doctor.findOne({ username: username }, function(err, doctor) {
       console.log('doctor find one');
       if (err) {
         console.log('inside if');
         return done(err);
       }
       console.log('valid password doctor');
-      console.log(user.validPassword);
-      if (user.validPassword(password)) {
-        return done(null, user);
+      console.log(doctor.validPassword);
+      if (doctor.validPassword(password)) {
+        console.log('inside valid password');
+        return done(null, doctor);
       }
     });
 
-    Patient.findOne({ username: username }, function(err, user) {
-      if (err) {
-        return done(err);
-      }
-      if (user.validPassword(password)) {
-        return done(null, user);
-      }
-    });
+    // Patient.findOne({ username: username }, function(err, user) {
+    //   if (err) {
+    //     return done(err);
+    //   }
+    //   console.log("inside patient", user);
+    //   if (user.validPassword(password)) {
+    //     return done(null, user);
+    //   }
+    // });
 
-    Admin.findOne({ username: username }, function(err, user) {
-      if (err) {
-        return done(err);
-      }
-      if (user.validPassword(password)) {
-        return done(null, user);
-      }
-    });
-    console.log("can we see this");
-    return done(null, false, {message: 'Could not find user with that email'})
+//     Admin.findOne({ username: username }, function(err, user) {
+//       if (err) {
+//         return done(err);
+//       }
+//       if (user.validPassword(password)) {
+//         return done(null, user);
+//       }
+//     });
+//     console.log("can we see this");
+//     return done(null, false, {message: 'Could not find user with that email'})
   }
 ));
 
-app.post('/login',
-  passport.authenticate('json', { failureFlash: "this is a string" })
-);
+app.post('/login', function(req, res, next) {
+  passport.authenticate('json', { failureFlash: "this is a string" }, function(err, user) {
+    console.log("post login");
+  });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

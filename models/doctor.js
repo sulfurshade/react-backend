@@ -8,7 +8,9 @@ const schema = mongoose.Schema({
   email: { type: String, required: true, unique: true },
   username: { type: String, required: true, unique: true }
 });
-
+schema.methods.validPassword = function (password) {
+  return this.password === password;
+}
 schema.methods.apiRepr = function () {
   const obj = this.toObject();
   const repr = { id: this._id };
