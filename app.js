@@ -3,9 +3,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var passport = require('passport')
-  , LocalStrategy = require('passport-local').Strategy,
-  JsonStrategy = require('passport-json').Strategy;
+var passport = require('passport');
+// var passport = require('passport')
+//   , LocalStrategy = require('passport-local').Strategy,
+//   JWTStrategy = require('passport-jwt').Strategy;
 var flash = require('connect-flash');
 var session = require('express-session');
 var bodyParser = require('body-parser');
@@ -16,6 +17,7 @@ var patientsRouter = require('./routes/patients-router');
 var conditionsRouter = require('./routes/conditions-router');
 var appointmentsRouter = require('./routes/appointments-router');
 var adminsRouter = require('./routes/admin-router');
+var authRouter = require('./routes/auth-router');
 
 var Doctor = require('./models/doctor');
 var Admin = require('./models/admin');
@@ -45,54 +47,57 @@ app.use('/patients', patientsRouter);
 app.use('/conditions', conditionsRouter);
 app.use('/appointments', appointmentsRouter);
 app.use('/admins', adminsRouter);
+app.use('/auth', authRouter);
 
-passport.use(new JsonStrategy(
-  function(username, password, done) {
-    console.log('console log', username);
-    // Doctor.create({name: 'dr app js', number: '1231231234', practice: 'doctor', username: 'appjsdoctor', password: 'appjsdoctor', email: 'appjs@gmail.com'});
-    console.log('after doctor create');
-    Doctor.findOne({ username: username }, function(err, doctor) {
-      console.log('doctor find one');
-      if (err) {
-        console.log('inside if');
-        return done(err);
-      }
-      console.log('valid password doctor');
-      console.log(doctor.validPassword);
-      if (doctor.validPassword(password)) {
-        console.log('inside valid password');
-        return done(null, doctor);
-      }
-    });
+const {LocalStrategy, JWTStrategy} = require('./auth/strategies');
 
-    // Patient.findOne({ username: username }, function(err, user) {
-    //   if (err) {
-    //     return done(err);
-    //   }
-    //   console.log("inside patient", user);
-    //   if (user.validPassword(password)) {
-    //     return done(null, user);
-    //   }
-    // });
-
-//     Admin.findOne({ username: username }, function(err, user) {
+// passport.use(new JWTStrategy(
+//   function(username, password, done) {
+//     console.log('console log', username);
+//     // Doctor.create({name: 'dr app js', number: '1231231234', practice: 'doctor', username: 'appjsdoctor', password: 'appjsdoctor', email: 'appjs@gmail.com'});
+//     console.log('after doctor create');
+//     Doctor.findOne({ username: username }, function(err, doctor) {
+//       console.log('doctor find one');
 //       if (err) {
+//         console.log('inside if');
 //         return done(err);
 //       }
-//       if (user.validPassword(password)) {
-//         return done(null, user);
+//       console.log('valid password doctor');
+//       console.log(doctor.validPassword);
+//       if (doctor.validPassword(password)) {
+//         console.log('inside valid password');
+//         return done(null, doctor);
 //       }
 //     });
-//     console.log("can we see this");
-//     return done(null, false, {message: 'Could not find user with that email'})
-  }
-));
+//
+//     // Patient.findOne({ username: username }, function(err, user) {
+//     //   if (err) {
+//     //     return done(err);
+//     //   }
+//     //   console.log("inside patient", user);
+//     //   if (user.validPassword(password)) {
+//     //     return done(null, user);
+//     //   }
+//     // });
+//
+// //     Admin.findOne({ username: username }, function(err, user) {
+// //       if (err) {
+// //         return done(err);
+// //       }
+// //       if (user.validPassword(password)) {
+// //         return done(null, user);
+// //       }
+// //     });
+// //     console.log("can we see this");
+// //     return done(null, false, {message: 'Could not find user with that email'})
+//   }
+// ));
 
-app.post('/login', passport.authenticate('json', { failureFlash: "this is a string" }), function(req, res) {
-    console.log("post login", req.user);
-    res.setHeader("Content-Type", "application/json");
-    res.send(JSON.stringify(req.user));
-});
+// app.post('/login', passport.authenticate('json', { failureFlash: "Invalid username or password." }), function(req, res) {
+//     console.log("post login", req.user);
+//     res.setHeader("Content-Type", "application/json");
+//     res.send(JSON.stringify(req.user));
+// });
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

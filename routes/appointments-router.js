@@ -1,12 +1,13 @@
 var express = require('express');
 const bodyParser = require('body-parser');
-
+const passportJWT = require('passport-jwt');
+const passport = require('passport');
 const Appointment = require('../models/appointment');
 var router = express.Router();
 
 const jsonParser = bodyParser.json();
 
-router.post('/', (req, res) => {
+router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
   const requiredFields = ['date', 'patient', 'doctor', 'reason'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -31,19 +32,19 @@ router.post('/', (req, res) => {
     });
 });
 
-router.get('/', (req, res) => {
+router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
   Appointment.find()
     .then(appointments => res.json(appointments.map(appointment => appointment.apiRepr())))
     .catch(err => res.status(500).json({ error: true, reason: err }))
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
   Appointment.findById(req.params.id)
     .then(appointment => res.json(appointment.apiRepr()))
     .catch(err => res.status(500).json({error: true, reason: JSON.stringify(err) }))
 })
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
   Appointment
     .findByIdAndRemove(req.params.id)
     .then(() => {
@@ -55,7 +56,7 @@ router.delete('/:id', (req, res) => {
     });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     res.status(400).json({
       error: 'Request path id and request body id values must match'

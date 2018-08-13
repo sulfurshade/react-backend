@@ -5,15 +5,23 @@ const { Patient } = require('../models/patient');
 const { check, validationResult } = require('express-validator/check');
 const { matchedData, sanitize } = require('express-validator/filter');
 const passport = require('passport');
-const JsonStrategy = require('passport-json').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+const JWTStrategy = require('passport-jwt').Strategy;
 
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
 
+const options = {
+  secretOrKey: 'tempvalue',
+  usernameField: "email",
+  passReqToCallback: true,
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+ };
+
 passport.use(
-  new JsonStrategy(
-    { usernameField: "email", passReqToCallback: true },
+  new JWTStrategy(
+    options,
     function(req, email, password, done) {
       Patient.findOne({ email }, function(err, user) {
         if (err) {
@@ -45,7 +53,7 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-router.get('/', (req, res) => {
+router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
   Patient
     .find()
     .then(patients => {
@@ -57,7 +65,7 @@ router.get('/', (req, res) => {
     });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
   Patient
     .findOne({id: req.params.id})
     .then(patient => res.json(patient.apiRepr()))
@@ -67,7 +75,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.post('/', (req, res) => {
+router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
   const requiredFields = ['name', 'number', 'age', 'gender'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -93,7 +101,7 @@ router.post('/', (req, res) => {
 });
 
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
   Patient
     .findByIdAndRemove(req.params.id)
     .then(() => {
@@ -106,7 +114,7 @@ router.delete('/:id', (req, res) => {
 });
 
 
-router.put('/:id', (req, res) => {
+router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     res.status(400).json({
       error: 'Request path id and request body id values must match'

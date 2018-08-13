@@ -1,19 +1,41 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { Doctor } = require('../models/doctor');
+const Doctor = require('../models/doctor');
 const { check, validationResult } = require('express-validator/check');
 const { matchedData, sanitize } = require('express-validator/filter');
 const passport = require('passport');
-const JsonStrategy = require('passport-json').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+const JWTStrategy = require('passport-jwt').Strategy;
 
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
 
+function ensureDoctor(req, res, next) {
+  // console.log("ensureDoctor", req.headers);
+  const token = req.headers["authorization"];
+  console.log(token);
+  // if (req.user) {
+  if (token === "Bearer Joey") {
+    console.log('Ensure Doctor If');
+    return next();
+  }
+  else {
+    console.log('ensure doctor else');
+    return res.send(401);
+  }
+};
+
+const options = {
+  secretOrKey: 'tempvalue',
+  usernameField: "email",
+  passReqToCallback: true,
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+ };
 passport.use(
-  new JsonStrategy(
-    { usernameField: "email", passReqToCallback: true },
+  new JWTStrategy(
+    options,
     function(req, email, password, done) {
       Doctor.findOne({ email }, function(err, user) {
         if (err) {
@@ -45,7 +67,7 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-router.post('/', (req, res) => {
+router.post('/', ensureDoctor, (req, res) => {
   const requiredFields = ['name', 'number', 'practice'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -72,7 +94,7 @@ router.post('/', (req, res) => {
     });
 });
 
-router.get('/', (req, res) => {
+router.get('/', ensureDoctor, (req, res) => {
   Doctor.find()
     .then(doctors => res.json(doctors.map(doctor => doctor.apiRepr())))
     .catch(err => res.status(500).json({ error: true, reason: err }))
