@@ -12,6 +12,17 @@ const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
 
+function ensurePatient(req, res, next) {
+  const token = req.headers["authorization"];
+  console.log(token);
+  if (token === "Bearer Joey") {
+    return next();
+  }
+  else {
+    return res.send(401);
+  }
+};
+
 const options = {
   secretOrKey: 'tempvalue',
   usernameField: "email",

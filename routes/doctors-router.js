@@ -7,6 +7,7 @@ const { matchedData, sanitize } = require('express-validator/filter');
 const passport = require('passport');
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const JWTStrategy = require('passport-jwt').Strategy;
+const config = require('../config');
 
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -28,7 +29,7 @@ function ensureDoctor(req, res, next) {
 };
 
 const options = {
-  secretOrKey: 'tempvalue',
+  secretOrKey: config.JWT_SECRET,
   usernameField: "email",
   passReqToCallback: true,
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()

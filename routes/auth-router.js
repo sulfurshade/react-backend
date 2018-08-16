@@ -22,7 +22,7 @@ const router = express.Router();
 var opts = {};
 
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-opts.secretOrKey = 'secret';
+opts.secretOrKey = config.JWT_SECRET;
 
 router.post('/login', (req, res) => {
         console.log("received request");
@@ -59,9 +59,32 @@ router.post(
     '/refresh',
     passport.authenticate('jwt', {session: false}),
     (req, res) => {
-        const authToken = createAuthToken(req.user);
+        const token = createAuthToken(req.user);
         res.json({authToken});
     }
+);
+
+router.post(
+  '/refresh2',
+  (req, res) => {
+    console.log('hello from refresh2');
+    if (!req.headers.authorization) {
+      return res.status(401).send({ message: "Invalid credentials" });
+    }
+    const token = req.headers.authorization.split(" ")[1];
+    console.log(token);
+    jwt.verify(token, config.JWT_SECRET, function(err, decodedUser){
+      if (err) {
+        console.log('there was an error', err);
+        return res.status(401).send({ message: "Invalid credentials" });
+      }
+      else {
+        console.log('user verified successfully', decodedUser);
+        const token = createAuthToken(decodedUser);
+        res.json({token});
+      }
+    });
+  }
 );
 
 module.exports = router;
