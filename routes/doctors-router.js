@@ -8,6 +8,7 @@ const passport = require('passport');
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const JWTStrategy = require('passport-jwt').Strategy;
 const config = require('../config');
+const jwt = require('jsonwebtoken');
 
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -107,7 +108,7 @@ router.get('/:id', (req, res) => {
     .catch(err => res.status(500).json({error: true, reason: JSON.stringify(err) }))
 })
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
   Doctor
     .findByIdAndRemove(req.params.id)
     .then(() => {

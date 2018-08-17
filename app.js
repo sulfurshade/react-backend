@@ -10,6 +10,7 @@ var passport = require('passport');
 var flash = require('connect-flash');
 var session = require('express-session');
 var bodyParser = require('body-parser');
+require('./passport-setup');
 
 var indexRouter = require('./routes/index');
 var doctorsRouter = require('./routes/doctors-router');
@@ -42,7 +43,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
 app.use('/', indexRouter);
-app.use('/doctors', doctorsRouter);
+app.use('/doctors', passport.authenticate('jwt', {session: false}), doctorsRouter);
 app.use('/patients', patientsRouter);
 app.use('/conditions', conditionsRouter);
 app.use('/appointments', appointmentsRouter);
