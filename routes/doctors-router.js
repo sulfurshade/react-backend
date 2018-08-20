@@ -9,6 +9,7 @@ const ExtractJwt = require('passport-jwt').ExtractJwt;
 const JWTStrategy = require('passport-jwt').Strategy;
 const config = require('../config');
 const jwt = require('jsonwebtoken');
+const authorizeUser = require('./authorize-user');
 
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -69,7 +70,7 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-router.post('/', ensureDoctor, (req, res) => {
+router.post('/', (req, res) => {
   const requiredFields = ['name', 'number', 'practice'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -96,7 +97,7 @@ router.post('/', ensureDoctor, (req, res) => {
     });
 });
 
-router.get('/', ensureDoctor, (req, res) => {
+router.get('/', authorizeUser, (req, res) => {
   Doctor.find()
     .then(doctors => res.json(doctors.map(doctor => doctor.apiRepr())))
     .catch(err => res.status(500).json({ error: true, reason: err }))

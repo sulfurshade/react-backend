@@ -4,6 +4,7 @@ const passportJWT = require('passport-jwt');
 const passport = require('passport');
 const Condition = require('../models/condition');
 var router = express.Router();
+const authorizeUser = require('./authorize-user');
 
 const jsonParser = bodyParser.json();
 

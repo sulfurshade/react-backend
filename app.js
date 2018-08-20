@@ -43,7 +43,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
 app.use('/', indexRouter);
-app.use('/doctors', passport.authenticate('jwt', {session: false}), doctorsRouter);
+app.use('/doctors', doctorsRouter);
 app.use('/patients', patientsRouter);
 app.use('/conditions', conditionsRouter);
 app.use('/appointments', appointmentsRouter);

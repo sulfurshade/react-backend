@@ -7,6 +7,7 @@ const { matchedData, sanitize } = require('express-validator/filter');
 const passport = require('passport');
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const JWTStrategy = require('passport-jwt').Strategy;
+const authorizeUser = require('./authorize-user');
 
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });

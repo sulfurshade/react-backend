@@ -24,23 +24,6 @@ var opts = {};
 opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = config.JWT_SECRET;
 
-router.use(function (req, res, next) {
-  if (!req.headers.authorization) {
-    return res.status(401).send({ message: "Invalid credentials" });
-  }
-  const token = req.headers.authorization.split(" ")[1];
-  jwt.verify(token, config.JWT_SECRET, function(err, decodedUser){
-    if (err) {
-      console.log('there was an error', err);
-      return res.status(401).send({ message: "Invalid credentials" });
-    }
-    else {
-      console.log('User ID:', decodedUser.id);
-    }
-  });
-  next()
-})
-
 router.post('/login', (req, res) => {
         console.log("received request");
         console.log(req.body.username);
