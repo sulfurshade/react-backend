@@ -98,6 +98,7 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', authorizeUser, (req, res) => {
+  console.log('inside doctor get');
   Doctor.find()
     .then(doctors => res.json(doctors.map(doctor => doctor.apiRepr())))
     .catch(err => res.status(500).json({ error: true, reason: err }))

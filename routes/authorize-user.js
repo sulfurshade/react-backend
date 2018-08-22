@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config');
 
 function authorizeUser(req, res, next) {
+  console.log('inside authorizeUser');
   if (!req.headers.authorization) {
     return res.status(401).send({ message: "Invalid credentials" });
   }

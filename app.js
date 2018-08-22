@@ -11,6 +11,7 @@ var flash = require('connect-flash');
 var session = require('express-session');
 var bodyParser = require('body-parser');
 require('./passport-setup');
+var cors = require('cors');
 
 var indexRouter = require('./routes/index');
 var doctorsRouter = require('./routes/doctors-router');
@@ -30,6 +31,7 @@ app.use(bodyParser.json());
 app.use(cookieParser('keyboard cat'));
 app.use(session({ cookie: { maxAge: 60000 }, secret: 'randomstring', resave: true, saveUninitialized: true}));
 app.use(flash());
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
