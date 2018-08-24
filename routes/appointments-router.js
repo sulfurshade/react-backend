@@ -8,7 +8,7 @@ const authorizeUser = require('./authorize-user');
 
 const jsonParser = bodyParser.json();
 
-router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.post('/', authorizeUser, (req, res) => {
   const requiredFields = ['date', 'patient', 'doctor', 'reason'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -33,19 +33,19 @@ router.post('/', passport.authenticate('jwt', {session: false}), (req, res) => {
     });
 });
 
-router.get('/', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get('/', authorizeUser, (req, res) => {
   Appointment.find()
     .then(appointments => res.json(appointments.map(appointment => appointment.apiRepr())))
     .catch(err => res.status(500).json({ error: true, reason: err }))
 });
 
-router.get('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.get('/:id', authorizeUser, (req, res) => {
   Appointment.findById(req.params.id)
     .then(appointment => res.json(appointment.apiRepr()))
     .catch(err => res.status(500).json({error: true, reason: JSON.stringify(err) }))
 })
 
-router.delete('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.delete('/:id', authorizeUser, (req, res) => {
   Appointment
     .findByIdAndRemove(req.params.id)
     .then(() => {
@@ -57,7 +57,7 @@ router.delete('/:id', passport.authenticate('jwt', {session: false}), (req, res)
     });
 });
 
-router.put('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.put('/:id', authorizeUser, (req, res) => {
   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     res.status(400).json({
       error: 'Request path id and request body id values must match'

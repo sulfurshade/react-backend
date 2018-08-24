@@ -70,7 +70,7 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-router.post('/', (req, res) => {
+router.post('/', authorizeUser, (req, res) => {
   const requiredFields = ['name', 'number', 'practice'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -104,13 +104,13 @@ router.get('/', authorizeUser, (req, res) => {
     .catch(err => res.status(500).json({ error: true, reason: err }))
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', authorizeUser, (req, res) => {
   Doctor.findById(req.params.id)
     .then(doctor => res.json(doctor.apiRepr()))
     .catch(err => res.status(500).json({error: true, reason: JSON.stringify(err) }))
 })
 
-router.delete('/:id', passport.authenticate('jwt', {session: false}), (req, res) => {
+router.delete('/:id', authorizeUser, (req, res) => {
   Doctor
     .findByIdAndRemove(req.params.id)
     .then(() => {
@@ -122,7 +122,7 @@ router.delete('/:id', passport.authenticate('jwt', {session: false}), (req, res)
     });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', authorizeUser, (req, res) => {
   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
     res.status(400).json({
       error: 'Request path id and request body id values must match'
