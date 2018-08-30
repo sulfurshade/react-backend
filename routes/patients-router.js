@@ -69,7 +69,7 @@ router.get('/', authorizeUser, (req, res) => {
   Patient
     .find()
     .then(patients => {
-      res.json(patients.map(student => patient.apiRepr()));
+      res.json(patients.map(patient => patient.apiRepr()));
     })
     .catch(err => {
       console.error(err);

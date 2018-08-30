@@ -10,6 +10,7 @@ const JWTStrategy = require('passport-jwt').Strategy;
 const config = require('../config');
 const jwt = require('jsonwebtoken');
 const authorizeUser = require('./authorize-user');
+const bcrypt = require('bcrypt');
 
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -81,6 +82,8 @@ router.post('/', (req, res) => {
     }
   }
 
+  const hashedPassword = bcrypt.hashSync(req.body.password, 15);
+
   Doctor
     .create({
       name: req.body.name,
@@ -88,7 +91,7 @@ router.post('/', (req, res) => {
       practice: req.body.practice,
       username: req.body.username,
       email: req.body.email,
-      password: req.body.password
+      password: hashedPassword
     })
     .then(doctor => res.status(201).json(doctor.apiRepr()))
     .catch(err => {

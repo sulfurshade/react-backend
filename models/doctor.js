@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 
 const schema = mongoose.Schema({
   name: { type: String, required: true },
@@ -10,7 +11,7 @@ const schema = mongoose.Schema({
 });
 
 schema.methods.validPassword = function (password) {
-  return this.password === password;
+  return bcrypt.compareSync(password, this.password);
 };
 
 schema.methods.apiRepr = function () {

@@ -9,15 +9,17 @@ const schema = mongoose.Schema({
   username: { type: String, required: true, unique: true }
 });
 
-schema.methods.apiRepr = () => {
+schema.methods.apiRepr = function () {
+  const obj = this.toObject();
   const repr = { id: this._id };
-  Object.keys(this).forEach(key => {
-    if (key !== '_id') {
-      Object.assign(repr, { [key]: this[key] });
+  Object.keys(obj).forEach(key => {
+    if (!['_id', '__v'].includes(key)) {
+      Object.assign(repr, { [key]: obj[key] });
     }
   });
+
   return repr;
-}
+};
 
 const Patient = mongoose.model('Patient', schema, 'Patient');
 
