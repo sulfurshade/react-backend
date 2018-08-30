@@ -8,7 +8,7 @@ const authorizeUser = require('./authorize-user');
 
 const jsonParser = bodyParser.json();
 
-router.post('/', authorizeUser, (req, res) => {
+router.post('/', (req, res) => {
   const requiredFields = ['name', 'description', 'urgency', 'date'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];

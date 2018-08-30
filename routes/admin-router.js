@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { Admin } = require('../models/admin');
+const Admin = require('../models/admin');
 const { check, validationResult } = require('express-validator/check');
 const { matchedData, sanitize } = require('express-validator/filter');
 const passport = require('passport');
@@ -54,8 +54,8 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-router.post('/', authorizeUser, (req, res) => {
-  const requiredFields = ['name', 'encryptedPassword', 'email'];
+router.post('/', (req, res) => {
+  const requiredFields = ['name', 'password', 'email'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -68,7 +68,7 @@ router.post('/', authorizeUser, (req, res) => {
   Admin
     .create({
       name: req.body.name,
-      encryptedPassword: req.body.encryptedPassword,
+      password: req.body.password,
       email: req.body.email
     })
     .then(admin => res.status(201).json(admin.apiRepr()))
@@ -110,7 +110,7 @@ router.put('/:id', authorizeUser, (req, res) => {
   }
 
   const updated = {};
-  const updateableFields = ['name', 'encryptedPassword', 'email'];
+  const updateableFields = ['name', 'password', 'email'];
   updateableFields.forEach(field => {
     if (field in req.body) {
       updated[field] = req.body[field];

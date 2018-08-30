@@ -19,6 +19,6 @@ schema.methods.apiRepr = () => {
   return repr;
 }
 
-const Appointment = mongoose.model('Appointment', schema);
+const Appointment = mongoose.model('Appointment', schema, 'Appointment');
 
 module.exports = Appointment;

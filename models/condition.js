@@ -17,6 +17,6 @@ schema.methods.apiRepr = () => {
   return repr;
 }
 
-const Condition = mongoose.model('Condition', schema);
+const Condition = mongoose.model('Condition', schema, 'Condition');
 
 module.exports = Condition;

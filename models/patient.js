@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const passport = require('passport');
 
 const schema = mongoose.Schema({
   name: { type: String, required: true },
@@ -20,6 +19,6 @@ schema.methods.apiRepr = () => {
   return repr;
 }
 
-const Patient = mongoose.model('Patient', schema);
+const Patient = mongoose.model('Patient', schema, 'Patient');
 
 module.exports = Patient;

@@ -5,10 +5,12 @@ const passport = require('passport');
 const Appointment = require('../models/appointment');
 var router = express.Router();
 const authorizeUser = require('./authorize-user');
+const Doctor = require('../models/doctor');
+const Patient = require('../models/patient');
 
 const jsonParser = bodyParser.json();
 
-router.post('/', authorizeUser, (req, res) => {
+router.post('/', (req, res) => {
   const requiredFields = ['date', 'patient', 'doctor', 'reason'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
@@ -18,19 +20,32 @@ router.post('/', authorizeUser, (req, res) => {
       return res.status(400).send(message);
     }
   }
-
-  Appointment
-    .create({
-      date: req.body.date,
-      patient: req.body.patient,
-      doctor: req.body.doctor,
-      reason: req.body.reason
-    })
-    .then(appointment => res.status(201).json(appointment.apiRepr()))
-    .catch(err => {
-        console.error(err);
-        res.status(500).json({error: 'Something went wrong'});
-    });
+  Doctor.findById(req.body.doctor, function (err, doctor) {
+    if (err) {
+      return res.status(422).json({error: 'Doctor not found'});
+    }
+    else {
+      Patient.findById(req.body.patient, function (err, patient) {
+        if (err) {
+          return res.status(422).json({error: 'Patient not found'})
+        }
+        else {
+          Appointment
+            .create({
+              date: req.body.date,
+              patient: patient,
+              doctor: doctor,
+              reason: req.body.reason
+            })
+            .then(appointment => res.status(201).json(appointment.apiRepr()))
+            .catch(err => {
+                console.error(err);
+                res.status(500).json({error: 'Something went wrong'});
+            });
+        }
+      })
+    }
+  })
 });
 
 router.get('/', authorizeUser, (req, res) => {
@@ -42,7 +57,7 @@ router.get('/', authorizeUser, (req, res) => {
 router.get('/:id', authorizeUser, (req, res) => {
   Appointment.findById(req.params.id)
     .then(appointment => res.json(appointment.apiRepr()))
-    .catch(err => res.status(500).json({error: true, reason: JSON.stringify(err) }))
+    .catch(err => res.status(404).json({error: true, reason: JSON.stringify(err) }))
 })
 
 router.delete('/:id', authorizeUser, (req, res) => {

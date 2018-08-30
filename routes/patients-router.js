@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { Patient } = require('../models/patient');
+const Patient = require('../models/patient');
 const { check, validationResult } = require('express-validator/check');
 const { matchedData, sanitize } = require('express-validator/filter');
 const passport = require('passport');
@@ -87,8 +87,8 @@ router.get('/:id', authorizeUser, (req, res) => {
     });
 });
 
-router.post('/', authorizeUser, (req, res) => {
-  const requiredFields = ['name', 'number', 'age', 'gender'];
+router.post('/', (req, res) => {
+  const requiredFields = ['name', 'number', 'age', 'gender', 'password', 'username'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -103,7 +103,9 @@ router.post('/', authorizeUser, (req, res) => {
       name: req.body.name,
       number: req.body.number,
       age: req.body.age,
-      gender: req.body.gender
+      gender: req.body.gender,
+      password: req.body.password,
+      username: req.body.username
     })
     .then(patient => res.status(201).json(patient.apiRepr()))
     .catch(err => {
