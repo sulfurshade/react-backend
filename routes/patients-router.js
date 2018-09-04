@@ -8,6 +8,7 @@ const passport = require('passport');
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const JWTStrategy = require('passport-jwt').Strategy;
 const authorizeUser = require('./authorize-user');
+const bcrypt = require('bcrypt');
 
 const router = express.Router();
 const urlencodedParser = bodyParser.urlencoded({ extended: false });
@@ -98,13 +99,15 @@ router.post('/', (req, res) => {
     }
   }
 
+  const hashedPassword = bcrypt.hashSync(req.body.password, 15);
+
   Patient
     .create({
       name: req.body.name,
       number: req.body.number,
       age: req.body.age,
       gender: req.body.gender,
-      password: req.body.password,
+      password: hashedPassword,
       username: req.body.username
     })
     .then(patient => res.status(201).json(patient.apiRepr()))

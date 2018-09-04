@@ -15,16 +15,18 @@ schema.methods.validPassword = function (password) {
 };
 
 schema.methods.apiRepr = function () {
+  // this = document
   const obj = this.toObject();
   const repr = { id: this._id };
+
   Object.keys(obj).forEach(key => {
-    if (!['_id', '__v'].includes(key)) {
+    if (!['_id', 'password', '__v'].includes(key)) {
       Object.assign(repr, { [key]: obj[key] });
     }
-  });
+  })
 
   return repr;
-};
+}
 
 const Doctor = mongoose.model('Doctor', schema, 'Doctor');
 
