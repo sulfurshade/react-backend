@@ -71,7 +71,7 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
-router.post('/', (req, res) => {
+router.post('/', authorizeUser, (req, res) => {
   const requiredFields = ['name', 'number', 'practice'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
