@@ -4,19 +4,20 @@ const PatientSchema = require('mongoose').model('Patient').schema;
 
 const schema = mongoose.Schema({
   date: { type: Date, required: true },
-  patient: [PatientSchema],
-  doctor: [DoctorSchema],
+  patient: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true }],
+  doctor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor', required: true }],
   reason: { type: String, required: true }
 });
 
-schema.methods.apiRepr = () => {
-  const repr = { id: this._id };
-  Object.keys(this).forEach(key => {
-    if (key !== '_id') {
-      Object.assign(repr, { [key]: this[key] });
-    }
-  });
-  return repr;
+schema.methods.apiRepr = function() {
+  const obj = this.toObject();
+  const payload = {
+    date: this.date,
+    patient: this.patient,
+    doctor: this.doctor,
+    reason: this.reason
+  };
+  return payload;
 }
 
 const Appointment = mongoose.model('Appointment', schema, 'Appointment');

@@ -30,18 +30,20 @@ router.post('/', (req, res) => {
           return res.status(422).json({error: 'Patient not found'})
         }
         else {
-          Appointment
-            .create({
-              date: req.body.date,
-              patient: patient,
-              doctor: doctor,
-              reason: req.body.reason
-            })
-            .then(appointment => res.status(201).json(appointment.apiRepr()))
-            .catch(err => {
-                console.error(err);
-                res.status(500).json({error: 'Something went wrong'});
-            });
+          console.log("heres the patient", patient);
+          let newAppointment = new Appointment({
+            date: req.body.date,
+            reason: req.body.reason
+          });
+          newAppointment.patient.push(patient);
+          newAppointment.doctor.push(doctor);
+
+          newAppointment.save(appointment => {
+            return res.status(201).json(appointment.apiRepr());
+          }).catch(err => {
+            console.error(err);
+            res.status(500).json({error: 'Something went wrong'});
+          });
         }
       })
     }
@@ -49,27 +51,37 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', authorizeUser, (req, res) => {
-  Appointment.find()
-    .then(appointments => res.json(appointments.map(appointment => appointment.apiRepr())))
-    .catch(err => res.status(500).json({ error: true, reason: err }))
+  let params = {};
+  if (req.query.date) {
+    let dateInputs = req.query.date.split('-');
+    const year = Number.parseInt(dateInputs[0]);
+    const month = (Number.parseInt(dateInputs[1])-1);
+    const day = Number.parseInt(dateInputs[2]);
+    const startDate = new Date(year, month, day);
+    const endDate = new Date(year, month, day+1);
+    params = {"date": {"$gte": startDate, "$lt": endDate}};
+  }
+  Appointment.find(params)
+  .then(appointments => res.json(appointments.map(appointment => appointment.apiRepr())))
+  .catch(err => res.status(500).json({ error: true, reason: err }))
 });
 
 router.get('/:id', authorizeUser, (req, res) => {
   Appointment.findById(req.params.id)
-    .then(appointment => res.json(appointment.apiRepr()))
-    .catch(err => res.status(404).json({error: true, reason: JSON.stringify(err) }))
+  .then(appointment => res.json(appointment.apiRepr()))
+  .catch(err => res.status(404).json({error: true, reason: JSON.stringify(err) }))
 })
 
 router.delete('/:id', authorizeUser, (req, res) => {
   Appointment
-    .findByIdAndRemove(req.params.id)
-    .then(() => {
-      res.status(204).json({message: 'success'});
-    })
-    .catch(err => {
-      console.error(err);
-      res.status(500).json({error: 'something went terribly wrong'});
-    });
+  .findByIdAndRemove(req.params.id)
+  .then(() => {
+    res.status(204).json({message: 'success'});
+  })
+  .catch(err => {
+    console.error(err);
+    res.status(500).json({error: 'something went terribly wrong'});
+  });
 });
 
 router.put('/:id', authorizeUser, (req, res) => {
@@ -88,9 +100,9 @@ router.put('/:id', authorizeUser, (req, res) => {
   });
 
   Appointment
-    .findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
-    .then(updatedPost => res.status(204).end())
-    .catch(err => res.status(500).json({message: 'Something went wrong'}));
+  .findByIdAndUpdate(req.params.id, {$set: updated}, {new: true})
+  .then(updatedPost => res.status(204).end())
+  .catch(err => res.status(500).json({message: 'Something went wrong'}));
 });
 
 module.exports = router;

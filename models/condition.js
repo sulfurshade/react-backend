@@ -7,14 +7,15 @@ const schema = mongoose.Schema({
   date: { type: Date, required: true }
 });
 
-schema.methods.apiRepr = () => {
-  const repr = { id: this._id };
-  Object.keys(this).forEach(key => {
-    if (key !== '_id') {
-      Object.assign(repr, { [key]: this[key] });
-    }
-  });
-  return repr;
+schema.methods.apiRepr = function () {
+  const obj = this.toObject();
+  const payload = {
+    name: this.name,
+    description: this.description,
+    urgency: this.urgency,
+    date: this.date
+  };
+  return payload;
 }
 
 const Condition = mongoose.model('Condition', schema, 'Condition');

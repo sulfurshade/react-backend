@@ -3,11 +3,11 @@ const bcrypt = require('bcrypt');
 
 const schema = mongoose.Schema({
   name: { type: String, required: true },
-  number: { type: String, required: true, unique: true },
+  number: { type: String, required: true },
   age: { type: Number, required: true},
   gender: { type: String, required: true },
   password: { type: String, required: true },
-  username: { type: String, required: true, unique: true }
+  username: { type: String, required: true }
 });
 
 schema.methods.validPassword = function (password) {
